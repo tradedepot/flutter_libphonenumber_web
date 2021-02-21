@@ -1,8 +1,7 @@
-# flutter_libphonenumber
+# flutter_libphonenumber_web
 
 A wrapper around libphonenumber with added functionality merged from the following libs:
-* https://github.com/nashfive/phone_number
-* https://github.com/caseyryan/flutter_multi_formatter
+* https://www.npmjs.com/package/libphonenumber-js
 
 Uses the following native libraries:
 
