@@ -105,6 +105,7 @@ class _MyAppState extends State<MyApp> {
                                 print(res['GB']);
                                 print(res['US']);
                                 print(res['BR']);
+                                print(res['NG']);
                               },
                             ),
 

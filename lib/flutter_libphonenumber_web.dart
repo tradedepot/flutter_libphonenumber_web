@@ -1,4 +1,5 @@
 import 'package:flutter/services.dart';
+import 'package:flutter_libphonenumber_web/src/examples.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 
 import 'src/libphonenumber-js.dart';
@@ -37,56 +38,32 @@ class FlutterLibphonenumberWeb {
   }
 
   Future<Map> getAllSupportedRegions() async {
-    return {
-      "GB": {
-        "phoneCode": "44",
-        "exampleNumberMobileNational": "07400 123456",
-        "exampleNumberFixedLineNational": "0121 234 5678",
-        "phoneMaskMobileNational": "00000 000000",
-        "phoneMaskFixedLineNational": "0000 000 0000",
-        "exampleNumberMobileInternational": "+44 7400 123456",
-        "exampleNumberFixedLineInternational": "+44 121 234 5678",
-        "phoneMaskMobileInternational": "+00 0000 000000",
-        "phoneMaskFixedLineInternational": "+00 000 000 0000",
-        "countryName": "United Kingdom",
-      },
-      "NG": {
-        "phoneCode": "234",
-        "exampleNumberMobileNational": "0809 664 6691",
-        "exampleNumberFixedLineNational": "0809 664 6691",
-        "phoneMaskMobileNational": "0000 000 0000",
-        "phoneMaskFixedLineNational": "0000 000 0000",
-        "exampleNumberMobileInternational": "+234 809 664 6691",
-        "exampleNumberFixedLineInternational": "+234 809 234 6691",
-        "phoneMaskMobileInternational": "+000 000 000 0000",
-        "phoneMaskFixedLineInternational": "+000 000 000 0000",
-        "countryName": "Nigeria",
-      },
-      "US": {
-        "phoneCode": "1",
-        "exampleNumberMobileNational": "(201) 555-0123",
-        "exampleNumberFixedLineNational": "(201) 555-0123",
-        "phoneMaskMobileNational": "(000) 000-0000",
-        "phoneMaskFixedLineNational": "(000) 000-0000",
-        "exampleNumberMobileInternational": "+1 201-555-0123",
-        "exampleNumberFixedLineInternational": "+1 201-555-0123",
-        "phoneMaskMobileInternational": "+0 000-000-0000",
-        "phoneMaskFixedLineInternational": "+0 000-000-0000",
-        "countryName": "United States",
-      },
-      "BR": {
-        "phoneCode": "55",
-        "exampleNumberMobileNational": "(11) 96123-4567",
-        "exampleNumberFixedLineNational": "(11) 2345-6789",
-        "phoneMaskMobileNational": "(00) 00000-0000",
-        "phoneMaskFixedLineNational": "(00) 0000-0000",
-        "exampleNumberMobileInternational": "+55 11 96123-4567",
-        "exampleNumberFixedLineInternational": "+55 11 2345-6789",
-        "phoneMaskMobileInternational": "+00 00 00000-0000",
-        "phoneMaskFixedLineInternational": "+00 00 0000-0000",
-        "countryName": "Brazil",
-      },
-    };
+    final data = <String, Map<String, String>>{};
+
+    getCountries().forEach((countryCode) {
+      if (examples.containsKey(countryCode)) {
+        final phone = parsePhoneNumber(examples[countryCode]!, countryCode);
+        if (!phone.isValid()) return;
+
+        final nationalNumber = phone.formatNational();
+        final internationalNumber = phone.formatInternational();
+
+        data[countryCode] = {
+          'phoneCode': phone.countryCallingCode,
+          'exampleNumberMobileNational': nationalNumber,
+          'exampleNumberFixedLineNational': nationalNumber,
+          'phoneMaskMobileNational': _maskNumber(nationalNumber),
+          'phoneMaskFixedLineNational': _maskNumber(nationalNumber),
+          'exampleNumberMobileInternational': internationalNumber,
+          'exampleNumberFixedLineInternational': internationalNumber,
+          'phoneMaskMobileInternational': _maskNumber(internationalNumber),
+          'phoneMaskFixedLineInternational': _maskNumber(internationalNumber),
+          'countryName': countryCode,
+        };
+      }
+    });
+
+    return data;
   }
 
   Future<Map?> parse(MethodCall call) async {
@@ -105,7 +82,8 @@ class FlutterLibphonenumberWeb {
     return {
       'national': parsed.formatNational(),
       'e164': parsed.number,
-      'national_number': parsed.formatNational(),
+      'national_number':
+          parsed.number.replaceFirst('+${parsed.countryCallingCode}', ''),
       'international': parsed.formatInternational(),
       'country_code': parsed.countryCallingCode,
       'type': formatNumberType(parsed.getType()),
@@ -130,5 +108,10 @@ class FlutterLibphonenumberWeb {
       }
     });
     return formatted;
+  }
+
+  // Masks a phone number by replacing all digits with 0s
+  String _maskNumber(String phoneNumber) {
+    return phoneNumber.replaceAll(RegExp(r'\d'), '0');
   }
 }

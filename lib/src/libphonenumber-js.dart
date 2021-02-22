@@ -8,6 +8,11 @@ external Phone Function(String phonenumber, [String? countryCode])
 
 external List<String> Function() get getCountries;
 
+external Phone Function(
+  String countryCode,
+  Map examples,
+) get getExampleNumber;
+
 @JS()
 class Phone {
   external String get country;
