@@ -23,7 +23,7 @@ class Phone {
 
   external bool Function() get isValid;
 
-  external String Function() get getType;
+  external String? Function() get getType;
 
   external String Function(String format) get format;
 
